@@ -1,17 +1,17 @@
-FROM node:20-alpine
+FROM node:18
 
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm install --only=production
+
+# Instalar dependencias incluyendo devDependencies
+RUN npm install
 
 COPY . .
 
-RUN npm run build
+# Compilar TypeScript
+RUN npx tsc -p .
 
 ENV NODE_ENV=production
-ENV PORT=8080
-
-EXPOSE 8080
 
 CMD ["node", "dist/server.js"]
