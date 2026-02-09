@@ -1,7 +1,7 @@
 // backend/src/dev/layer-mapper.ts
 // -------------------------------------------------------------
 //  LayerMapper — calibración fina de capas MIA SUCIA
-//  Versión 1.7 (capas ricas sin agregar nada nuevo)
+//  Versión 1.7 (sin channel, sin inventar nada)
 // -------------------------------------------------------------
 
 import type {
@@ -23,9 +23,6 @@ function esRuidoFisico(n: MiaSuciaNote): boolean {
   // 3) Pitch fuera del rango musical típico
   if (n.pitch < 21 || n.pitch > 108) return true;
 
-  // 4) Canales no melódicos (percusión, efectos)
-  if (n.channel > 9) return true;
-
   return false;
 }
 
@@ -33,7 +30,6 @@ function esRuidoFisico(n: MiaSuciaNote): boolean {
 //  Heurística musical contextual (sin inventar nada)
 // -------------------------------------------------------------
 function esRuidoContextual(n: MiaSuciaNote, notes: MiaSuciaNote[]): boolean {
-  // Buscar notas cercanas en el tiempo
   const vecinos = notes.filter(
     (m) =>
       m !== n &&
@@ -41,7 +37,7 @@ function esRuidoContextual(n: MiaSuciaNote, notes: MiaSuciaNote[]): boolean {
       Math.abs(m.pitch - n.pitch) < 2
   );
 
-  // Nota completamente aislada → ruido
+  // Nota completamente aislada → ruido contextual
   if (vecinos.length === 0) return true;
 
   return false;
@@ -64,7 +60,7 @@ export function layerMapper(notes: MiaSuciaNote[]): MiaSuciaCapas {
       continue;
     }
 
-    // 2) Ruido físico (micro-notas, velocity bajo, pitch raro, canal raro)
+    // 2) Ruido físico (micro-notas, velocity bajo, pitch raro)
     if (esRuidoFisico(n)) {
       RUIDO.push(n);
       continue;

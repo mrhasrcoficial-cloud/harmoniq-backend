@@ -34,8 +34,8 @@ export interface MiaSuciaNote extends BackendMidiNote {
   inScale: boolean;
   valid: boolean;
 
-  // Campos que YA vienen en el payload real:
-  channel: number;      // ← EXISTE en tu JSON real
+  // Campos que YA vienen en el payload real, pero no siempre:
+  channel?: number;     // ← OPCIONAL, soberano
   trackIndex: number;   // ← ya existe en BackendMidiNote
 }
 // ─────────────────────────────────────────────

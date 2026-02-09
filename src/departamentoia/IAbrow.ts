@@ -1,7 +1,7 @@
 // backend/src/departamentoia/IAbrow.ts
 // -------------------------------------------------------------
 //  IAbrow — IA‑MIA (Clasificación superficial)
-//  Versión constitucional 1.4.1
+//  Versión constitucional 1.4.2 (calibración fina de rol)
 // -------------------------------------------------------------
 
 import type {
@@ -16,15 +16,42 @@ import type {
 // -------------------------------------------------------------
 export class IAbrow {
 
-  // Regla superficial de rol
+  // Regla superficial de rol (calibrada)
   private clasificarNota(n: BackendMidiNote): MiaNotaRol {
     const pc = n.pitchClass;
+    const dur = n.duration;
+    const vel = n.velocity;
+    const pitch = n.pitch;
 
-    if (n.pitch < 20 || n.pitch > 115) return "ruido";
-    if (n.duration < 0.05) return "ruido";
+    // 0) Ruido duro: fuera de rango o micro-notas
+    if (pitch < 20 || pitch > 115) return "ruido";
+    if (dur < 0.03) return "ruido";
+    if (vel < 10) return "ruido";
 
-    if (pc === 0 || pc === 5 || pc === 7) return "base";
+    // 1) Notas muy cortas pero no extremas → acompañamiento o ruido suave
+    if (dur < 0.06 && vel < 25) return "ruido";
+    if (dur < 0.08) return "acompanamiento";
 
+    // 2) Notas estructurales (BASE)
+    //    - tónica, dominante, subdominante
+    //    - duración media o larga
+    //    - velocity razonable
+    const esGradoBase = (pc === 0 || pc === 5 || pc === 7);
+    if (esGradoBase && dur >= 0.12 && vel >= 25) {
+      return "base";
+    }
+
+    // 3) Notas graves con duración decente → tienden a base
+    if (pitch < 48 && dur >= 0.10 && vel >= 20) {
+      return "base";
+    }
+
+    // 4) Notas medias/altas con duración media → acompañamiento
+    if (pitch >= 48 && pitch <= 96 && dur >= 0.06) {
+      return "acompanamiento";
+    }
+
+    // 5) Todo lo que no encaje bien → acompañamiento suave
     return "acompanamiento";
   }
 
