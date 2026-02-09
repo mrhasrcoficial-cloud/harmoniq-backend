@@ -1,7 +1,7 @@
 // backend/src/departamentoia/IAbrow.ts
 // -------------------------------------------------------------
-//  IAbrow — IA‑MIA (Clasificación superficial)
-//  Versión constitucional 1.4.2 (calibración fina de rol)
+//  IAbrow — IA‑MIA (Clasificación superficial con evaluación)
+//  Constitución 2.0 (usa IAEvaluator para rol coherente)
 // -------------------------------------------------------------
 
 import type {
@@ -11,53 +11,45 @@ import type {
   MiaSuciaCapas
 } from "../dev/types/backend.types.js";
 
+import type { NotaEvaluada } from "./IAEvaluator.js";
+import { evaluarNotas } from "./IAEvaluator.js";
+
 // -------------------------------------------------------------
-//  Clase IA — Clasificación superficial
+//  Clase IA — Clasificación superficial basada en evaluación
 // -------------------------------------------------------------
 export class IAbrow {
 
-  // Regla superficial de rol (calibrada)
-  private clasificarNota(n: BackendMidiNote): MiaNotaRol {
-    const pc = n.pitchClass;
-    const dur = n.duration;
-    const vel = n.velocity;
-    const pitch = n.pitch;
+  private clasificarNota(n: NotaEvaluada): MiaNotaRol {
+    const tipo = n.tipo;
+    const est = n.estabilidad;
+    const imp = n.importancia;
 
-    // 0) Ruido duro: fuera de rango o micro-notas
-    if (pitch < 20 || pitch > 115) return "ruido";
-    if (dur < 0.03) return "ruido";
-    if (vel < 10) return "ruido";
+    // 0) Ruido duro
+    if (tipo === "fantasma" || tipo === "micro") return "ruido";
+    if (tipo === "aislada" && imp < 0.25) return "ruido";
 
-    // 1) Notas muy cortas pero no extremas → acompañamiento o ruido suave
-    if (dur < 0.06 && vel < 25) return "ruido";
-    if (dur < 0.08) return "acompanamiento";
+    // 1) BASE superficial
+    if (tipo === "estructural" && est >= 0.8 && imp >= 0.4) return "base";
+    if (tipo === "guia" && est >= 0.7 && imp >= 0.5) return "base";
 
-    // 2) Notas estructurales (BASE)
-    //    - tónica, dominante, subdominante
-    //    - duración media o larga
-    //    - velocity razonable
-    const esGradoBase = (pc === 0 || pc === 5 || pc === 7);
-    if (esGradoBase && dur >= 0.12 && vel >= 25) {
-      return "base";
-    }
+    // 2) ACOMPANAMIENTO
+    if (tipo === "paso") return "acompanamiento";
+    if (tipo === "relleno") return "acompanamiento";
+    if (tipo === "tension") return "acompanamiento";
+    if (tipo === "resolucion") return "acompanamiento";
 
-    // 3) Notas graves con duración decente → tienden a base
-    if (pitch < 48 && dur >= 0.10 && vel >= 20) {
-      return "base";
-    }
+    // 3) Notas débiles pero válidas → acompañamiento suave
+    if (imp >= 0.2) return "acompanamiento";
 
-    // 4) Notas medias/altas con duración media → acompañamiento
-    if (pitch >= 48 && pitch <= 96 && dur >= 0.06) {
-      return "acompanamiento";
-    }
-
-    // 5) Todo lo que no encaje bien → acompañamiento suave
-    return "acompanamiento";
+    // 4) Todo lo demás → ruido superficial
+    return "ruido";
   }
 
-  // Convertir BackendMidiNote → MiaSuciaNote
+  // Convertir BackendMidiNote → MiaSuciaNote usando evaluación
   private etiquetar(notes: BackendMidiNote[]): MiaSuciaNote[] {
-    return notes.map<MiaSuciaNote>(n => {
+    const evaluadas = evaluarNotas(notes);
+
+    return evaluadas.map<MiaSuciaNote>(n => {
       const role = this.clasificarNota(n);
 
       return {
@@ -65,12 +57,11 @@ export class IAbrow {
         role,
         inScale: role !== "ruido",
         valid: role !== "ruido",
-        tags: []
+        tags: [n.tipo] // ⭐ ahora cada nota lleva su tipo
       };
     });
   }
 
-  // API interna
   public procesar(notes: BackendMidiNote[]): MiaSuciaNote[] {
     return this.etiquetar(notes);
   }

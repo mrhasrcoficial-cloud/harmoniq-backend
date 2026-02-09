@@ -1,7 +1,7 @@
 // backend/src/departamentoia/noise-filter-ia.ts
 // -------------------------------------------------------------
 //  NoiseFilter-IA — Etiquetador superficial constitucional
-//  Versión 1.7 (NO limpia, NO elimina, NO transforma)
+//  Versión 2.0 (estable, suave, NO elimina, NO transforma)
 // -------------------------------------------------------------
 
 import type {
@@ -31,10 +31,10 @@ export interface NoiseFilterConfig {
 }
 
 export const DEFAULT_NOISE_FILTER_CONFIG: NoiseFilterConfig = {
-  minDuration: 0.04,
-  minVelocity: 18,
-  minPitch: 20,
-  maxPitch: 115
+  minDuration: 0.03,   // ⭐ más suave
+  minVelocity: 12,     // ⭐ más suave
+  minPitch: 15,        // ⭐ más suave
+  maxPitch: 120        // ⭐ más suave
 };
 
 export function noiseFilterIA(
@@ -54,26 +54,26 @@ export function noiseFilterIA(
       valid = false;
     }
 
-    // 1) Rango
+    // 1) Rango suave
     if (n.pitch < config.minPitch || n.pitch > config.maxPitch) {
       tags.push(IA_DICTIONARY.tags.OUT_OF_RANGE);
       valid = false;
     }
 
-    // 2) Duración mínima
+    // 2) Duración mínima suave
     if (n.duration < config.minDuration) {
       tags.push(IA_DICTIONARY.tags.SHORT);
       valid = false;
     }
 
-    // 3) Velocidad mínima
+    // 3) Velocidad mínima suave
     if (n.velocity < config.minVelocity) {
       tags.push(IA_DICTIONARY.tags.LOW_VELOCITY);
       valid = false;
     }
 
-    // 4) Notas invasivas
-    if (n.pitch > 100 && n.velocity < 25) {
+    // 4) Notas invasivas (pitch alto + velocity muy bajo)
+    if (n.pitch > 100 && n.velocity < 20) {
       tags.push(IA_DICTIONARY.tags.INVASIVE);
       valid = false;
     }
@@ -87,7 +87,7 @@ export function noiseFilterIA(
       seen.add(key);
     }
 
-    // 6) Micro-duplicados
+    // 6) Micro-duplicados (1 ms)
     const microKey = `${n.pitch}-${(n.startTime * 1000).toFixed(0)}`;
     if (seen.has(microKey)) {
       tags.push(IA_DICTIONARY.tags.MICRO_DUP);
@@ -96,14 +96,14 @@ export function noiseFilterIA(
       seen.add(microKey);
     }
 
+    // 7) Nota limpia
     if (valid) {
       tags.push(IA_DICTIONARY.tags.CLEAN);
     }
 
-    // Rol superficial
+    // Rol superficial (NO definitivo)
     const role: MiaNotaRol = valid ? inferRole(n) : "ruido";
 
-    // NO se elimina nada — se etiqueta
     result.push({
       ...n,
       role,
@@ -119,8 +119,12 @@ export function noiseFilterIA(
 function inferRole(n: BackendMidiNote): MiaNotaRol {
   const pc = n.pitchClass;
 
+  // grados fuertes → base superficial
   if (pc === 0 || pc === 5 || pc === 7) return "base";
+
+  // registro medio → acompañamiento superficial
   if (n.pitch >= 40 && n.pitch <= 90) return "acompanamiento";
 
+  // todo lo demás → ruido superficial
   return "ruido";
 }

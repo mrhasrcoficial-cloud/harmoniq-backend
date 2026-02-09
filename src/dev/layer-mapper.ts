@@ -1,7 +1,7 @@
 // backend/src/dev/layer-mapper.ts
 // -------------------------------------------------------------
 //  LayerMapper — calibración fina de capas MIA SUCIA
-//  Versión 1.7 (sin channel, sin inventar nada)
+//  Versión 2.0 (suave, estable, sin channel)
 // -------------------------------------------------------------
 
 import type {
@@ -11,30 +11,30 @@ import type {
 } from "../dev/types/backend.types.js";
 
 // -------------------------------------------------------------
-//  Heurísticas musicales reales (no inventan nada)
+//  Ruido físico (suave, no agresivo)
 // -------------------------------------------------------------
 function esRuidoFisico(n: MiaSuciaNote): boolean {
-  // 1) Duración extremadamente corta (micro-notas)
-  if (n.duration < 0.04) return true;
+  // micro-notas reales
+  if (n.duration < 0.02) return true;
 
-  // 2) Velocity muy bajo (golpes, artefactos)
-  if (n.velocity < 18) return true;
+  // velocity extremadamente baja
+  if (n.velocity < 10) return true;
 
-  // 3) Pitch fuera del rango musical típico
-  if (n.pitch < 21 || n.pitch > 108) return true;
+  // pitch fuera del rango musical real
+  if (n.pitch < 15 || n.pitch > 120) return true;
 
   return false;
 }
 
 // -------------------------------------------------------------
-//  Heurística musical contextual (sin inventar nada)
+//  Ruido contextual (ventana más amplia y musical)
 // -------------------------------------------------------------
 function esRuidoContextual(n: MiaSuciaNote, notes: MiaSuciaNote[]): boolean {
   const vecinos = notes.filter(
     (m) =>
       m !== n &&
-      Math.abs(m.startTime - n.startTime) < 0.08 &&
-      Math.abs(m.pitch - n.pitch) < 2
+      Math.abs(m.startTime - n.startTime) < 0.25 &&   // ⭐ ventana ampliada
+      Math.abs(m.pitch - n.pitch) < 3                 // ⭐ tolerancia musical
   );
 
   // Nota completamente aislada → ruido contextual
@@ -60,7 +60,7 @@ export function layerMapper(notes: MiaSuciaNote[]): MiaSuciaCapas {
       continue;
     }
 
-    // 2) Ruido físico (micro-notas, velocity bajo, pitch raro)
+    // 2) Ruido físico (micro-notas, velocity muy baja, pitch raro)
     if (esRuidoFisico(n)) {
       RUIDO.push(n);
       continue;

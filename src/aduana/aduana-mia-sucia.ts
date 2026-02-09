@@ -1,4 +1,8 @@
 // backend/src/dev/aduana/aduana-mia-sucia.ts
+// -------------------------------------------------------------
+//  ADUANA MIA SUCIA — Constitución 1.4.1 (Alineado a SUPREMO)
+// -------------------------------------------------------------
+
 import type { MiaSucia } from "../contracts/mia-sucia.contract.js";
 import type { MiaCubo, MiaCapa, PMSmiaTramo } from "../dev/types/mia.types.js";
 
@@ -19,7 +23,7 @@ export function validarMiaSucia(mia: MiaSucia): SelloAduanaBackend {
   // Validar cubo soberano
   validarCubo(mia.cubo);
 
-  // Validar metadata física requerida por SUPREMO
+  // Metadata física requerida por SUPREMO
   if (typeof mia.bpmDetectado !== "number") {
     throw new Error("Aduana Backend: bpmDetectado inválido.");
   }
@@ -55,7 +59,7 @@ function validarCubo(cubo: MiaCubo) {
     throw new Error("Aduana Backend: versión del cubo inválida.");
   }
 
-  // Capas soberanas (Constitución 1.4.1)
+  // Capas soberanas
   validarCapa(cubo.capas.BASE, "BASE");
   validarCapa(cubo.capas.ACOMPANAMIENTO, "ACOMPANAMIENTO");
   validarCapa(cubo.capas.RUIDO, "RUIDO");
@@ -72,24 +76,29 @@ function validarCapa(capa: MiaCapa, nombre: string) {
   if (!Array.isArray(capa.tramos)) {
     throw new Error(`Aduana Backend: tramos de ${nombre} inválidos.`);
   }
-  capa.tramos.forEach(validarTramo);
+
+  capa.tramos.forEach(t => validarTramo(t, nombre));
 }
 
 // Validación superficial de un tramo PMSmia
-function validarTramo(t: PMSmiaTramo) {
-  if (typeof t.altura !== "string") {
+function validarTramo(t: PMSmiaTramo, capaEsperada: string) {
+  if (typeof t.altura !== "string" || t.altura.length === 0) {
     throw new Error("Aduana Backend: tramo.altura inválido.");
   }
-  if (typeof t.inicio !== "number" || t.inicio < 0 || t.inicio > 127) {
+
+  if (typeof t.inicio !== "number" || t.inicio < 0) {
     throw new Error("Aduana Backend: tramo.inicio inválido.");
   }
-  if (typeof t.fin !== "number" || t.fin < 0 || t.fin > 127) {
+
+  if (typeof t.fin !== "number" || t.fin < 0) {
     throw new Error("Aduana Backend: tramo.fin inválido.");
   }
+
   if (t.fin < t.inicio) {
     throw new Error("Aduana Backend: tramo.fin < tramo.inicio.");
   }
-  if (typeof t.capa !== "string") {
-    throw new Error("Aduana Backend: tramo.capa inválido.");
+
+  if (t.capa !== capaEsperada) {
+    throw new Error("Aduana Backend: tramo.capa no coincide con la capa contenedora.");
   }
 }

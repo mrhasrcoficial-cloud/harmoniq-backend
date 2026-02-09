@@ -28,17 +28,22 @@ export interface MiaSucia {
 // -------------------------------------------------------------
 //  ADAPTADOR: PMSmiaTramo → MidiNote (para SRC y SUPREMO)
 // -------------------------------------------------------------
+//  ⭐ NO incluimos channel (tu arquitectura 1.0 y 2.0 no lo usa)
+//  ⭐ trackIndex sigue siendo el mapa soberano de capas
+//  ⭐ velocity fija es constitucional en este adaptador
+// -------------------------------------------------------------
 export function tramoToMidiNote(t: any) {
   return {
     id: crypto.randomUUID(),
+
     pitch: t.altura,
     startTime: t.inicio,
     duration: t.fin - t.inicio,
     velocity: 100,
+
     trackIndex:
       t.capa === "BASE" ? 0 :
       t.capa === "ACOMPANAMIENTO" ? 1 :
-      2,
-    channel: 0
+      2
   };
 }

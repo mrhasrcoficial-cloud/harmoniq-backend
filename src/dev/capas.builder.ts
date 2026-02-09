@@ -1,7 +1,7 @@
 // backend/src/departamentoia/construirCapas.ts
 // -------------------------------------------------------------
-//  CONSTRUCTOR DE CAPAS — Constitución 1.7
-//  Alineado a las capas soberanas:
+//  CONSTRUCTOR DE CAPAS — Constitución 2.0
+//  Separación pura según rol final:
 //      BASE / ACOMPANAMIENTO / RUIDO
 // -------------------------------------------------------------
 
@@ -13,32 +13,26 @@ export function construirCapas(notasConRol: MiaSuciaNote[]): MiaSuciaCapas {
   const RUIDO: MiaSuciaNote[] = [];
 
   for (const n of notasConRol) {
-    // 1) Si la nota no es válida → ruido constitucional
-    if (!n.valid) {
-      RUIDO.push(n);
-      continue;
-    }
+    // ⭐ NO reinterpretamos valid
+    // ⭐ NO reinterpretamos tags
+    // ⭐ NO reinterpretamos tipo
+    // ⭐ NO reinterpretamos ruido físico/contextual
+    // El rol final YA VIENE DECIDIDO por IAbrow + layerMapper
 
-    // 2) Si el rol es ruido → ruido soberano
-    if (n.role === "ruido") {
-      RUIDO.push(n);
-      continue;
-    }
+    switch (n.role) {
+      case "base":
+        BASE.push(n);
+        break;
 
-    // 3) BASE soberana
-    if (n.role === "base") {
-      BASE.push(n);
-      continue;
-    }
+      case "acompanamiento":
+        ACOMPANAMIENTO.push(n);
+        break;
 
-    // 4) ACOMPANAMIENTO soberano
-    if (n.role === "acompanamiento") {
-      ACOMPANAMIENTO.push(n);
-      continue;
+      case "ruido":
+      default:
+        RUIDO.push(n);
+        break;
     }
-
-    // 5) Cualquier rol desconocido → ruido superficial
-    RUIDO.push(n);
   }
 
   return { BASE, ACOMPANAMIENTO, RUIDO };

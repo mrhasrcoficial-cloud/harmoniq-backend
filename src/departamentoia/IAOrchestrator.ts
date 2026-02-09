@@ -1,7 +1,7 @@
 // backend/src/departamentoia/IAOrchestrator.ts
 // -------------------------------------------------------------
-//  IAOrchestrator — Orquestador superficial IA‑MIA
-//  Constitución Backend 1.7 (alineado a calibración fina)
+//  IAOrchestrator — Orquestador IA‑MIA
+//  Constitución Backend 2.0 (pipeline completo y coherente)
 // -------------------------------------------------------------
 //  ✔ NO hace cognición
 //  ✔ NO interpreta música
@@ -22,19 +22,23 @@ import type {
 } from "../dev/types/backend.types.js";
 
 import { noiseFilterIA } from "./noise-filter-ia.js";
+import { evaluarNotas } from "./IAEvaluator.js";
 import { IAbrow_clasificarNotas } from "./IAbrow.js";
 import { layerMapper } from "../dev/layer-mapper.js";
 
 export class IAOrchestrator {
   run(notes: BackendMidiNote[]): MiaSuciaCapas {
-    // 1. Filtro superficial de ruido físico
-    const filtered: BackendMidiNote[] = noiseFilterIA(notes);
+    // 1. Etiquetado superficial (NO elimina nada)
+    const filtradas = noiseFilterIA(notes);
 
-    // 2. Clasificación superficial IA‑MIA (roles base/acompa/ruido)
-    const classified: MiaSuciaNote[] = IAbrow_clasificarNotas(filtered);
+    // 2. Evaluación superficial de notas (tipo, estabilidad, importancia)
+    const evaluadas = evaluarNotas(filtradas);
 
-    // 3. Calibración fina de capas (ruido contextual, micro-notas, etc.)
-    const capas: MiaSuciaCapas = layerMapper(classified);
+    // 3. Clasificación superficial IA‑MIA (rol base/acompa/ruido)
+    const clasificadas: MiaSuciaNote[] = IAbrow_clasificarNotas(evaluadas);
+
+    // 4. Calibración fina de capas (ruido contextual, micro-notas, etc.)
+    const capas: MiaSuciaCapas = layerMapper(clasificadas);
 
     return capas;
   }

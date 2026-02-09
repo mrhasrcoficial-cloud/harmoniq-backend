@@ -1,6 +1,7 @@
 // backend/src/dev/desempaquetador-mia-sucia.ts
 // -------------------------------------------------------------
 //  DESEMPAQUETADOR MIA SUCIA — Versión constitucional 1.4.1
+//  Alineado a SUPREMO y al contrato MIA SUCIA v1.0
 // -------------------------------------------------------------
 
 import { readFileSync } from "node:fs";
@@ -14,6 +15,7 @@ export interface DesempaquetadoMiaSucia {
 export function desempaquetarMiaSucia(path: string): DesempaquetadoMiaSucia | null {
   let raw: string;
 
+  // 1) Leer archivo .mia
   try {
     raw = readFileSync(path, "utf8");
   } catch (err) {
@@ -21,6 +23,7 @@ export function desempaquetarMiaSucia(path: string): DesempaquetadoMiaSucia | nu
     return null;
   }
 
+  // 2) Parsear JSON
   let json: unknown;
   try {
     json = JSON.parse(raw);
@@ -29,11 +32,13 @@ export function desempaquetarMiaSucia(path: string): DesempaquetadoMiaSucia | nu
     return null;
   }
 
+  // 3) Validar contrato MIA SUCIA v1.0
   if (!validarMiaSucia(json)) {
     console.error("❌ Archivo MIA SUCIA inválido según el contrato.");
     return null;
   }
 
+  // 4) NO transformar — solo castear
   const mia = json as MiaSucia;
 
   return { mia };

@@ -1,6 +1,6 @@
 // backend/src/dev/constructor-mia-sucia.ts
 // -------------------------------------------------------------
-//  CONSTRUCTOR MIA SUCIA — Constitución 1.4.1 (Alineado a SUPREMO)
+//  CONSTRUCTOR MIA SUCIA — Constitución 1.0 (Alineado a SUPREMO)
 // -------------------------------------------------------------
 
 import type {
@@ -19,6 +19,9 @@ import { pitchToAltura } from "./utils/pitch-to-altura.js";
 
 // -------------------------------------------------------------
 //  Conversión superficial de MiaSuciaNote → PMSmiaTramo
+//  ⭐ NO incluye tags, tipo, estabilidad, importancia
+//  ⭐ NO incluye channel
+//  ⭐ Conversión física mínima para SUPREMO
 // -------------------------------------------------------------
 function convertirNotaATramo(
   n: MiaSuciaNote,
@@ -38,16 +41,26 @@ function convertirNotaATramo(
 export function construirMiaSucia(capas: MiaSuciaCapas): MiaCubo {
   const cubo = crearPlantillaMia();
 
+  // BASE
   for (const n of capas.BASE) {
     cubo.capas.BASE.tramos.push(convertirNotaATramo(n, "BASE"));
   }
 
+  // ACOMPANAMIENTO
   for (const n of capas.ACOMPANAMIENTO) {
-    cubo.capas.ACOMPANAMIENTO.tramos.push(convertirNotaATramo(n, "ACOMPANAMIENTO"));
+    cubo.capas.ACOMPANAMIENTO.tramos.push(
+      convertirNotaATramo(n, "ACOMPANAMIENTO")
+    );
   }
 
+  // RUIDO
   for (const n of capas.RUIDO) {
     cubo.capas.RUIDO.tramos.push(convertirNotaATramo(n, "RUIDO"));
+  }
+
+  // ⭐ Ordenar tramos por inicio (estabilidad constitucional)
+  for (const capa of Object.values(cubo.capas)) {
+    capa.tramos.sort((a, b) => a.inicio - b.inicio);
   }
 
   return cubo;

@@ -34,10 +34,16 @@ export interface MiaSuciaNote extends BackendMidiNote {
   inScale: boolean;
   valid: boolean;
 
-  // Campos que YA vienen en el payload real, pero no siempre:
-  channel?: number;     // ← OPCIONAL, soberano
-  trackIndex: number;   // ← ya existe en BackendMidiNote
+  // ⭐ Campos internos del pipeline IA (opcionales)
+  tipo?: string;
+  estabilidad?: number;
+  importancia?: number;
+  vecinos?: number;
+
+  // ⭐ Eliminado: channel (no existe en la arquitectura)
+  // channel?: number;
 }
+
 // ─────────────────────────────────────────────
 // 4. Capas superficiales previas al cubo
 // ─────────────────────────────────────────────
