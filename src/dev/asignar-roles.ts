@@ -1,23 +1,32 @@
 // backend/src/departamentoia/asignar-roles.ts
 // -------------------------------------------------------------
 //  asignarRoles — Adaptador inicial (NO clasifica)
-//  Versión 2.0 (alineado a IAEvaluator + IAbrow)
+//  Constitución 2.1 (NO produce MiaSuciaNote)
 // -------------------------------------------------------------
 
 import type {
   BackendMidiNote,
-  MiaSuciaNote
+  MiaNotaRol
 } from "./types/backend.types.js";
 
-export function asignarRoles(notes: BackendMidiNote[]): MiaSuciaNote[] {
+// ⭐ Este módulo NO debe devolver MiaSuciaNote
+// ⭐ Solo devuelve BackendMidiNote enriquecido superficialmente
+export function asignarRoles(
+  notes: BackendMidiNote[]
+): (BackendMidiNote & {
+  role: MiaNotaRol;
+  inScale: boolean;
+  valid: boolean;
+  tags: string[];
+})[] {
   return notes.map(n => {
     return {
-      ...n,
+      ...n,               // ⭐ preserva channel, pitch, velocity, etc.
 
-      // El rol REAL lo asigna IAbrow v2.0
+      // Rol superficial placeholder (el real lo asigna IAbrow)
       role: "acompanamiento",
 
-      // Se llenará después según noiseFilter + IAEvaluator + IAbrow
+      // Se recalibrará después por noiseFilter + IAEvaluator + IAbrow
       inScale: true,
       valid: true,
       tags: []

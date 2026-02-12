@@ -1,12 +1,11 @@
 // backend/src/departamentoia/noise-filter-ia.ts
 // -------------------------------------------------------------
 //  NoiseFilter-IA — Etiquetador superficial constitucional
-//  Versión 2.0 (estable, suave, NO elimina, NO transforma)
+//  Versión 2.1 (NO elimina, NO transforma, NO produce MiaSuciaNote)
 // -------------------------------------------------------------
 
 import type {
   BackendMidiNote,
-  MiaSuciaNote,
   MiaNotaRol
 } from "../dev/types/backend.types.js";
 
@@ -31,17 +30,23 @@ export interface NoiseFilterConfig {
 }
 
 export const DEFAULT_NOISE_FILTER_CONFIG: NoiseFilterConfig = {
-  minDuration: 0.03,   // ⭐ más suave
-  minVelocity: 12,     // ⭐ más suave
-  minPitch: 15,        // ⭐ más suave
-  maxPitch: 120        // ⭐ más suave
+  minDuration: 0.03,
+  minVelocity: 12,
+  minPitch: 15,
+  maxPitch: 120
 };
 
+// ⭐ Ahora devuelve BackendMidiNote enriquecido, NO MiaSuciaNote
 export function noiseFilterIA(
   notes: BackendMidiNote[],
   config: NoiseFilterConfig = DEFAULT_NOISE_FILTER_CONFIG
-): MiaSuciaNote[] {
-  const result: MiaSuciaNote[] = [];
+): (BackendMidiNote & {
+  role: MiaNotaRol;
+  inScale: boolean;
+  valid: boolean;
+  tags: string[];
+})[] {
+  const result = [];
   const seen = new Set<string>();
 
   for (const n of notes) {
@@ -72,7 +77,7 @@ export function noiseFilterIA(
       valid = false;
     }
 
-    // 4) Notas invasivas (pitch alto + velocity muy bajo)
+    // 4) Notas invasivas
     if (n.pitch > 100 && n.velocity < 20) {
       tags.push(IA_DICTIONARY.tags.INVASIVE);
       valid = false;
@@ -87,7 +92,7 @@ export function noiseFilterIA(
       seen.add(key);
     }
 
-    // 6) Micro-duplicados (1 ms)
+    // 6) Micro-duplicados
     const microKey = `${n.pitch}-${(n.startTime * 1000).toFixed(0)}`;
     if (seen.has(microKey)) {
       tags.push(IA_DICTIONARY.tags.MICRO_DUP);
@@ -104,6 +109,7 @@ export function noiseFilterIA(
     // Rol superficial (NO definitivo)
     const role: MiaNotaRol = valid ? inferRole(n) : "ruido";
 
+    // ⭐ Devolvemos BackendMidiNote enriquecido (incluye channel)
     result.push({
       ...n,
       role,
@@ -119,12 +125,7 @@ export function noiseFilterIA(
 function inferRole(n: BackendMidiNote): MiaNotaRol {
   const pc = n.pitchClass;
 
-  // grados fuertes → base superficial
   if (pc === 0 || pc === 5 || pc === 7) return "base";
-
-  // registro medio → acompañamiento superficial
   if (n.pitch >= 40 && n.pitch <= 90) return "acompanamiento";
-
-  // todo lo demás → ruido superficial
   return "ruido";
 }

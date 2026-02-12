@@ -1,7 +1,7 @@
 // backend/src/departamentoia/IAbrow.ts
 // -------------------------------------------------------------
 //  IAbrow — IA‑MIA (Clasificación superficial con evaluación)
-//  Constitución 2.0 (usa IAEvaluator para rol coherente)
+//  Constitución 2.1 (corrige channel + coherencia MiaSuciaNote)
 // -------------------------------------------------------------
 
 import type {
@@ -53,11 +53,11 @@ export class IAbrow {
       const role = this.clasificarNota(n);
 
       return {
-        ...n,
+        ...n,                 // ⭐ incluye channel, pitch, velocity, etc.
         role,
         inScale: role !== "ruido",
         valid: role !== "ruido",
-        tags: [n.tipo] // ⭐ ahora cada nota lleva su tipo
+        tags: [n.tipo]        // ⭐ cada nota lleva su tipo superficial
       };
     });
   }

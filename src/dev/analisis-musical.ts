@@ -2,6 +2,7 @@
 // -------------------------------------------------------------
 //  Análisis Musical Optimizado — Camino B (Producción)
 //  Traduce MIA SUCIA → tempo, tonalidad, notas, acordes
+//  Constitución 2.1 (usa pitch MIDI real, no HA–JL)
 // -------------------------------------------------------------
 
 import type { MiaSucia } from "../contracts/mia-sucia.contract.js";
@@ -9,7 +10,7 @@ import type { MiaSucia } from "../contracts/mia-sucia.contract.js";
 export interface AnalisisMusical {
   tempo: number;
   tonalidad: string | null;
-  notas: string[];
+  notas: string[];     // nombres musicales (C, D#, etc.)
   acordes: string[];
 }
 
@@ -35,14 +36,14 @@ const ESCALAS_MAYORES: Record<string, number[]> = {
 export function generarAnalisisMusical(mia: MiaSucia): AnalisisMusical {
   const tempo = mia.bpmDetectado;
 
-  // 1. Extraer notas base
+  // 1. Extraer tramos BASE
   const base = mia.cubo.capas.BASE.tramos;
 
-  // 2. Convertir alturas MIA → pitch class
-  const notas = base.map(t => t.altura);
+  // 2. Convertir pitch MIDI → pitch class
+  const pcs = base.map(t => t.pitch % 12);
 
-  // 3. Convertir a pitch class numérico
-  const pcs = notas.map(n => PC.indexOf(n));
+  // 3. Convertir a nombres musicales
+  const notas = pcs.map(pc => PC[pc]);
 
   // 4. Detectar tonalidad
   const tonalidad = detectarTonalidad(pcs);
@@ -95,7 +96,6 @@ function detectarAcordes(pcs: number[]): string[] {
 
   for (let i = 0; i < pcs.length - 2; i++) {
     const triada = [pcs[i], pcs[i+1], pcs[i+2]].sort((a,b) => a-b);
-
     const nombres = triada.map(pc => PC[pc]);
     acordes.push(nombres.join("-"));
   }

@@ -1,13 +1,14 @@
 // backend/src/dev/mia-sucia-final.builder.ts
 // -------------------------------------------------------------
-//  CONSTRUCTOR FINAL MIA SUCIA — Constitución 1.4.1
-//  Alineado al pipeline IAOrchestrator (clasificación completa)
+//  CONSTRUCTOR FINAL MIA SUCIA — Constitución 2.1
+//  Alineado al pipeline soberano (notas → capas → tramos → cubo)
 // -------------------------------------------------------------
 
 import type { BackendMidiNote } from "./types/backend.types.js";
 import type { MiaSuciaCapas } from "./types/backend.types.js";
 
 import { IAOrchestrator } from "../departamentoia/IAOrchestrator.js";
+import { adaptarCapasATramos } from "../backend-adaptadores-tramos/adaptador-tramos.js";
 import { construirMiaSucia as construirCubo } from "./constructor-mia-sucia.js";
 
 interface DatosMiaFinal {
@@ -24,14 +25,17 @@ export function construirMiaSuciaFinal({
   duracion
 }: DatosMiaFinal) {
 
-  // ⭐ 1. Pipeline completo IA (ruido físico → evaluación → rol → capas)
+  // ⭐ 1. Pipeline completo IA (notas → capas)
   const ia = new IAOrchestrator();
-  const capas: MiaSuciaCapas = ia.run(notes);
+  const capasNotas: MiaSuciaCapas = ia.run(notes);
 
-  // ⭐ 2. Construir cubo soberano (BASE / ACOMP / RUIDO)
-  const cubo = construirCubo(capas);
+  // ⭐ 2. Adaptar capas → TRAMOS reales
+  const capasConTramos = adaptarCapasATramos(capasNotas);
 
-  // ⭐ 3. Construir contrato MIA SUCIA v1.0
+  // ⭐ 3. Construir cubo soberano (con TRAMOS)
+  const cubo = construirCubo(capasConTramos);
+
+  // ⭐ 4. Construir contrato MIA SUCIA v1.0
   return {
     version: "1.0",
     bpmDetectado: bpm,

@@ -1,6 +1,6 @@
 // backend/src/dev/validar-mia-sucia.ts
 // -------------------------------------------------------------
-//  Validador MIA SUCIA — Constitución 1.4.1 (Alineado a SUPREMO)
+//  Validador MIA SUCIA — Constitución 2.1 (Alineado a SUPREMO)
 // -------------------------------------------------------------
 
 import type { MiaSucia } from "../contracts/mia-sucia.contract.js";
@@ -34,15 +34,20 @@ export function validarMiaSucia(obj: any): obj is MiaSucia {
     if (!Array.isArray(capa.tramos)) return false;
 
     for (const t of capa.tramos) {
-      // Altura MIA (string no vacío)
-      if (typeof t.altura !== "string" || t.altura.length === 0) return false;
+      // ⭐ alturaTexto (decorativo)
+      if (typeof t.alturaTexto !== "string" || t.alturaTexto.length === 0)
+        return false;
+
+      // ⭐ pitch MIDI real
+      if (typeof t.pitch !== "number" || t.pitch < 0)
+        return false;
 
       // Inicio/fin numéricos
       if (typeof t.inicio !== "number") return false;
       if (typeof t.fin !== "number") return false;
 
-      // Inicio < fin (tramo válido)
-      if (t.inicio >= t.fin) return false;
+      // ⭐ Inicio < fin (pero permitimos duración 0)
+      if (t.fin < t.inicio) return false;
 
       // Capa constitucional
       if (t.capa !== nombre) return false;

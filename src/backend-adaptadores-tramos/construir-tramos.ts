@@ -1,3 +1,8 @@
+// -------------------------------------------------------------
+//  ADAPTADOR DE TRAMOS — Constitución 2.1
+//  Convierte MiaSuciaCapas → PMSmiaTramo con pitch real
+// -------------------------------------------------------------
+
 import type { MiaSuciaCapas } from "../../src/dev/types/backend.types.js";
 import type { PMSmiaTramo, PMSmiaCapa, PMSmiaAltura } from "../../src/dev/types/mia.types.js";
 import { pitchToHAJL } from "./altura-hajl.js";
@@ -20,14 +25,16 @@ export interface MiaCapasTramos {
 
 function convertirListaANTramos(lista: any[], capa: PMSmiaCapa): PMSmiaTramo[] {
   return lista.map(n => {
-    const altura = pitchToHAJL(n.pitch) as PMSmiaAltura;
+    const alturaTexto = pitchToHAJL(n.pitch) as PMSmiaAltura;
+
     const inicio = Number(n.startTime) || 0;
     const dur = Number(n.duration) || 0;
     const fin = Math.max(inicio + dur, inicio + 0.01);
 
     return {
       capa,
-      altura,
+      pitch: n.pitch,          // ⭐ pitch MIDI real
+      alturaTexto,             // ⭐ etiqueta HA–JL decorativa
       inicio,
       fin
     };

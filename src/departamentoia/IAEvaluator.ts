@@ -1,7 +1,7 @@
 // backend/src/departamentoia/IAEvaluator.ts
 // -------------------------------------------------------------
 //  IAEvaluator — Evaluación superficial de notas
-//  Constitución 2.0 (sin cognición, sin inventar nada)
+//  Constitución 2.1 (preserva channel, pitch, y datos originales)
 // -------------------------------------------------------------
 //  Este módulo determina el "tipo" de cada nota:
 //      - estructural
@@ -32,6 +32,7 @@ export type TipoDeNota =
   | "acentuada"
   | "debil";
 
+// ⭐ NotaEvaluada hereda TODO de BackendMidiNote (incluye channel)
 export interface NotaEvaluada extends BackendMidiNote {
   tipo: TipoDeNota;
   estabilidad: number;   // 0–1
@@ -64,7 +65,7 @@ function evaluarNota(
   const importancia = calcularImportancia(n, vecinos);
 
   return {
-    ...n,
+    ...n, // ⭐ preserva channel, pitch, velocity, etc.
     tipo,
     estabilidad,
     importancia,

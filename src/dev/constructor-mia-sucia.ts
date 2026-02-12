@@ -1,12 +1,12 @@
 // backend/src/dev/constructor-mia-sucia.ts
 // -------------------------------------------------------------
-//  CONSTRUCTOR MIA SUCIA — Constitución 2.0 (Alineado a SUPREMO)
+//  CONSTRUCTOR MIA SUCIA — Constitución 2.1 (Alineado a SUPREMO)
 // -------------------------------------------------------------
 //
 //  Corrección fundamental:
-//    - Ahora enviamos pitch MIDI real al cubo
-//    - alturaTexto queda como decorativo (no usado por SRC)
-//    - Esto restaura la estructura musical y las capas
+//    - Recibe TRAMOS reales (MiaCapasTramos), no notas
+//    - No convierte notas → tramos (ya vienen convertidos)
+//    - Totalmente alineado con PMSmiaTramo 2.0
 //
 // -------------------------------------------------------------
 
@@ -14,62 +14,31 @@ import type {
   MiaCubo,
   PMSmiaTramo,
   PMSmiaCapa
-} from "./types/mia.types.js";
+} from "../dev/types/mia.types.js";
 
 import type {
-  MiaSuciaCapas,
-  MiaSuciaNote
-} from "./types/backend.types.js";
+  MiaCapasTramos
+} from "../backend-adaptadores-tramos/adaptador-tramos.js";
 
 import { crearPlantillaMia } from "./templates/mia.plantilla.js";
-import { pitchToAltura } from "./utils/pitch-to-altura.js";
-
-// -------------------------------------------------------------
-//  Conversión MiaSuciaNote → PMSmiaTramo (Constitución 2.0)
-//  ⭐ pitch MIDI real → fundamental para capas y UI
-//  ⭐ alturaTexto → opcional, decorativo
-// -------------------------------------------------------------
-function convertirNotaATramo(
-  n: MiaSuciaNote,
-  capa: PMSmiaCapa
-): PMSmiaTramo {
-  return {
-    // ⭐ pitch MIDI real (antes se enviaba altura textual → error madre)
-    pitch: n.pitch,
-
-    // ⭐ altura textual opcional (no afecta a SRC)
-    alturaTexto: pitchToAltura(n.pitch),
-
-    inicio: n.startTime,
-    fin: n.startTime + n.duration,
-    capa
-  };
-}
 
 // -------------------------------------------------------------
 //  Constructor oficial del cubo MIA SUCIA v1.0
+//  (Recibe TRAMOS reales, no notas)
 // -------------------------------------------------------------
-export function construirMiaSucia(capas: MiaSuciaCapas): MiaCubo {
+export function construirMiaSucia(capas: MiaCapasTramos): MiaCubo {
   const cubo = crearPlantillaMia();
 
   // BASE
-  for (const n of capas.BASE) {
-    cubo.capas.BASE.tramos.push(convertirNotaATramo(n, "BASE"));
-  }
+  cubo.capas.BASE.tramos = capas.BASE.tramos;
 
   // ACOMPANAMIENTO
-  for (const n of capas.ACOMPANAMIENTO) {
-    cubo.capas.ACOMPANAMIENTO.tramos.push(
-      convertirNotaATramo(n, "ACOMPANAMIENTO")
-    );
-  }
+  cubo.capas.ACOMPANAMIENTO.tramos = capas.ACOMPANAMIENTO.tramos;
 
   // RUIDO
-  for (const n of capas.RUIDO) {
-    cubo.capas.RUIDO.tramos.push(convertirNotaATramo(n, "RUIDO"));
-  }
+  cubo.capas.RUIDO.tramos = capas.RUIDO.tramos;
 
-  // ⭐ Ordenar tramos por inicio (estabilidad constitucional)
+  // ⭐ Ordenar tramos por inicio
   for (const capa of Object.values(cubo.capas)) {
     capa.tramos.sort((a, b) => a.inicio - b.inicio);
   }

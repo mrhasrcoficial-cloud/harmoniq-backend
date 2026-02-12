@@ -1,17 +1,19 @@
 // backend/src/dev/procesar-y-empaquetar-mia.ts
 // -------------------------------------------------------------
-//  PROCESAR + EMPAQUETAR MIA SUCIA — Constitución 1.4.1
+//  PROCESAR + EMPAQUETAR MIA SUCIA — Constitución 2.1
+//  Pipeline soberano: notas → capas → tramos → cubo
 // -------------------------------------------------------------
 
 import { ingestMidi } from "./midi-ingestor.js";
 import { IAOrchestrator } from "../departamentoia/IAOrchestrator.js";
+
+import { adaptarCapasATramos } from "../backend-adaptadores-tramos/adaptador-tramos.js";
 import { construirMiaSucia } from "./constructor-mia-sucia.js";
 import { empaquetarMiaSucia } from "./empaquetador-mia-sucia.js";
 
 import type { MiaSucia } from "../contracts/mia-sucia.contract.js";
 import { validarMiaSucia } from "./validar-mia-sucia.js";
 
-// ⭐ Nuevo módulo CAMINO B
 import { generarAnalisisMusical } from "./analisis-musical.js";
 
 export async function procesarYEmpaquetarMia(
@@ -22,14 +24,17 @@ export async function procesarYEmpaquetarMia(
   // 1. Ingestar MIDI físico
   const { notes, bpm, ppq, duracion } = ingestMidi(midiBuffer);
 
-  // 2. Pipeline IA constitucional (ruido → evaluación → rol → capas)
+  // 2. Pipeline IA constitucional (notas → capas)
   const ia = new IAOrchestrator();
-  const capas = ia.run(notes);
+  const capasNotas = ia.run(notes);
 
-  // 3. Construir cubo MIA SUCIA v1.0
-  const cubo = construirMiaSucia(capas);
+  // 3. Adaptar capas → TRAMOS reales
+  const capasConTramos = adaptarCapasATramos(capasNotas);
 
-  // 4. Construir contrato final
+  // 4. Construir cubo soberano (con TRAMOS)
+  const cubo = construirMiaSucia(capasConTramos);
+
+  // 5. Construir contrato final
   const mia: MiaSucia = {
     version: "1.0",
     bpmDetectado: bpm,
@@ -43,20 +48,18 @@ export async function procesarYEmpaquetarMia(
     cubo
   };
 
-  // ⭐ 4.5 Generar análisis musical clásico (CAMINO B)
+  // 6. Análisis musical clásico (CAMINO B)
   const analisisMusical = generarAnalisisMusical(mia);
 
-  // 5. Validar contrato
-  if (!validarMiaSucia(mia)) {
-    throw new Error("❌ El pipeline no devolvió un objeto MiaSucia válido.");
-  }
+  // 7. Validar contrato
+  validarMiaSucia(mia);
 
-  // 6. Empaquetado opcional
+  // 8. Empaquetado opcional
   if (outputPath) {
     empaquetarMiaSucia(mia, outputPath);
   }
 
-  // 7. Devolver contrato soberano + análisis musical
+  // 9. Devolver contrato soberano + análisis musical
   return {
     ...mia,
     analisisMusical

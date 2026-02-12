@@ -1,7 +1,7 @@
 // backend/src/departamentoia/IAOrchestrator.ts
 // -------------------------------------------------------------
 //  IAOrchestrator — Orquestador IA‑MIA
-//  Constitución Backend 2.0 (pipeline completo y coherente)
+//  Constitución Backend 2.1 (pipeline completo y coherente)
 // -------------------------------------------------------------
 //  ✔ NO hace cognición
 //  ✔ NO interpreta música
@@ -28,10 +28,10 @@ import { layerMapper } from "../dev/layer-mapper.js";
 
 export class IAOrchestrator {
   run(notes: BackendMidiNote[]): MiaSuciaCapas {
-    // 1. Etiquetado superficial (NO elimina nada)
-    const filtradas = noiseFilterIA(notes);
+    // 1. Filtrado superficial (NO elimina notas válidas)
+    const filtradas: BackendMidiNote[] = noiseFilterIA(notes);
 
-    // 2. Evaluación superficial de notas (tipo, estabilidad, importancia)
+    // 2. Evaluación superficial (tipo, estabilidad, importancia)
     const evaluadas = evaluarNotas(filtradas);
 
     // 3. Clasificación superficial IA‑MIA (rol base/acompa/ruido)

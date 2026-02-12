@@ -1,6 +1,6 @@
 // ============================================================
 //  backend/src/dev/types/backend.types.ts
-//  Tipos oficiales del país Backend (Constitución 1.4.1)
+//  Tipos oficiales del país Backend (Constitución 2.1)
 //  Alineado al contrato SUPREMO y al backend real
 // ============================================================
 
@@ -15,6 +15,9 @@ export interface BackendMidiNote {
   duration: number;
   velocity: number;
   pitchClass: number;
+
+  // ⭐ Restaurado: channel sí existe en la arquitectura 2.0
+  channel: number;
 }
 
 // ─────────────────────────────────────────────
@@ -39,9 +42,6 @@ export interface MiaSuciaNote extends BackendMidiNote {
   estabilidad?: number;
   importancia?: number;
   vecinos?: number;
-
-  // ⭐ Eliminado: channel (no existe en la arquitectura)
-  // channel?: number;
 }
 
 // ─────────────────────────────────────────────

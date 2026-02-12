@@ -1,6 +1,6 @@
 // backend/src/dev/aduana/aduana-mia-sucia.ts
 // -------------------------------------------------------------
-//  ADUANA MIA SUCIA — Constitución 1.4.1 (Alineado a SUPREMO)
+//  ADUANA MIA SUCIA — Constitución 2.1 (Alineado a SUPREMO)
 // -------------------------------------------------------------
 
 import type { MiaSucia } from "../contracts/mia-sucia.contract.js";
@@ -82,8 +82,14 @@ function validarCapa(capa: MiaCapa, nombre: string) {
 
 // Validación superficial de un tramo PMSmia
 function validarTramo(t: PMSmiaTramo, capaEsperada: string) {
-  if (typeof t.altura !== "string" || t.altura.length === 0) {
-    throw new Error("Aduana Backend: tramo.altura inválido.");
+  // ⭐ alturaTexto (decorativo)
+  if (typeof t.alturaTexto !== "string" || t.alturaTexto.length === 0) {
+    throw new Error("Aduana Backend: tramo.alturaTexto inválido.");
+  }
+
+  // ⭐ pitch MIDI real
+  if (typeof t.pitch !== "number" || t.pitch < 0) {
+    throw new Error("Aduana Backend: tramo.pitch inválido.");
   }
 
   if (typeof t.inicio !== "number" || t.inicio < 0) {
