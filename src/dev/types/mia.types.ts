@@ -1,6 +1,7 @@
 // ============================================================
 //  backend/src/dev/types/mia.types.ts
 //  Marco geográfico oficial de MIA SUCIA v1.0 (Alineado a SUPREMO)
+//  Constitución 2.0 — Ahora con pitch MIDI real
 // ============================================================
 
 // 64 alturas oficiales (HA–JL)
@@ -23,11 +24,18 @@ export type PMSmiaCapa =
   | "SEP2"
   | "SEP3";
 
-// Tramo fundamental del cubo PMSmia
+// ------------------------------------------------------------
+//  Tramo fundamental del cubo PMSmia (Constitución 2.0)
+//  ⭐ pitch MIDI real (fundamental para SRC y UI)
+//  ⭐ alturaTexto decorativa (no usada por SRC)
+// ------------------------------------------------------------
 export type PMSmiaTramo = {
-  altura: PMSmiaAltura;
+  pitch: number;              // ⭐ MIDI real
+  alturaTexto: PMSmiaAltura;  // ⭐ etiqueta textual opcional
+
   inicio: number;
   fin: number;
+
   capa: PMSmiaCapa;
 };
 

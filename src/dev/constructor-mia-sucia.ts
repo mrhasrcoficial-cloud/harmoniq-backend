@@ -1,6 +1,13 @@
 // backend/src/dev/constructor-mia-sucia.ts
 // -------------------------------------------------------------
-//  CONSTRUCTOR MIA SUCIA — Constitución 1.0 (Alineado a SUPREMO)
+//  CONSTRUCTOR MIA SUCIA — Constitución 2.0 (Alineado a SUPREMO)
+// -------------------------------------------------------------
+//
+//  Corrección fundamental:
+//    - Ahora enviamos pitch MIDI real al cubo
+//    - alturaTexto queda como decorativo (no usado por SRC)
+//    - Esto restaura la estructura musical y las capas
+//
 // -------------------------------------------------------------
 
 import type {
@@ -18,17 +25,21 @@ import { crearPlantillaMia } from "./templates/mia.plantilla.js";
 import { pitchToAltura } from "./utils/pitch-to-altura.js";
 
 // -------------------------------------------------------------
-//  Conversión superficial de MiaSuciaNote → PMSmiaTramo
-//  ⭐ NO incluye tags, tipo, estabilidad, importancia
-//  ⭐ NO incluye channel
-//  ⭐ Conversión física mínima para SUPREMO
+//  Conversión MiaSuciaNote → PMSmiaTramo (Constitución 2.0)
+//  ⭐ pitch MIDI real → fundamental para capas y UI
+//  ⭐ alturaTexto → opcional, decorativo
 // -------------------------------------------------------------
 function convertirNotaATramo(
   n: MiaSuciaNote,
   capa: PMSmiaCapa
 ): PMSmiaTramo {
   return {
-    altura: pitchToAltura(n.pitch),
+    // ⭐ pitch MIDI real (antes se enviaba altura textual → error madre)
+    pitch: n.pitch,
+
+    // ⭐ altura textual opcional (no afecta a SRC)
+    alturaTexto: pitchToAltura(n.pitch),
+
     inicio: n.startTime,
     fin: n.startTime + n.duration,
     capa
