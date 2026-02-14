@@ -6,6 +6,18 @@
 import type { MiaCubo } from "../dev/types/mia.types.js";
 
 // -------------------------------------------------------------
+//  Notas reales del MIDI físico (salida directa de ingestMidi)
+// -------------------------------------------------------------
+export interface BackendMidiNote {
+  pitch: number;
+  startTime: number;
+  duration: number;
+  velocity: number;
+  trackIndex: number;
+  channel: number;
+}
+
+// -------------------------------------------------------------
 //  CONTRATO MIA SUCIA (Versión 1.0)
 // -------------------------------------------------------------
 export interface MiaSucia {
@@ -23,6 +35,9 @@ export interface MiaSucia {
   /** Totales opcionales */
   totalNotas?: number;
   totalTramos?: number;
+
+  /** ⭐ Notas reales del MIDI físico (sin clasificar, sin alterar) */
+  notasOriginales: BackendMidiNote[];
 }
 
 // -------------------------------------------------------------
