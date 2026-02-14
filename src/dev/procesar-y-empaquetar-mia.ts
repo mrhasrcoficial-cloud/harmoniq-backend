@@ -1,7 +1,6 @@
 // backend/src/dev/procesar-y-empaquetar-mia.ts
 // -------------------------------------------------------------
 //  PROCESAR + EMPAQUETAR MIA SUCIA — Constitución 2.1
-//  Pipeline soberano: notas → capas → tramos → cubo
 // -------------------------------------------------------------
 
 import { ingestMidi } from "./midi-ingestor.js";
@@ -45,7 +44,10 @@ export async function procesarYEmpaquetarMia(
       cubo.capas.BASE.tramos.length +
       cubo.capas.ACOMPANAMIENTO.tramos.length +
       cubo.capas.RUIDO.tramos.length,
-    cubo
+    cubo,
+
+    // ⭐ NUEVO: notas reales del MIDI físico
+    notasOriginales: notes
   };
 
   // 6. Análisis musical clásico (CAMINO B)
