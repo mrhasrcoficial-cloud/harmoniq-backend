@@ -18,6 +18,19 @@ app.post("/mia-binary", async (req, res) => {
         const buffer = new Uint8Array(body);
         console.log("📥 /mia-binary recibido bytes:", buffer.length);
         const mia = await procesarYEmpaquetarMia(buffer);
+        // ⭐ LOG SOBERANO — Qué se está enviando
+        console.log("📤 Enviando MIA SUCIA:");
+        console.log("   - version:", mia.version);
+        console.log("   - bpmDetectado:", mia.bpmDetectado);
+        console.log("   - ppq:", mia.ppq);
+        console.log("   - duracion:", mia.duracion);
+        console.log("   - totalNotas:", mia.totalNotas);
+        console.log("   - totalTramos:", mia.totalTramos);
+        console.log("   - capas:", {
+            BASE: mia.cubo.capas.BASE.tramos.length,
+            ACOMPANAMIENTO: mia.cubo.capas.ACOMPANAMIENTO.tramos.length,
+            RUIDO: mia.cubo.capas.RUIDO.tramos.length
+        });
         return res.json(mia);
     }
     catch (err) {
@@ -34,6 +47,19 @@ app.post("/mia", async (req, res) => {
         const buffer = Uint8Array.from(Buffer.from(midiBase64, "base64"));
         console.log("📥 /mia (base64) recibido bytes:", buffer.length);
         const mia = await procesarYEmpaquetarMia(buffer);
+        // ⭐ LOG SOBERANO — Qué se está enviando
+        console.log("📤 Enviando MIA SUCIA:");
+        console.log("   - version:", mia.version);
+        console.log("   - bpmDetectado:", mia.bpmDetectado);
+        console.log("   - ppq:", mia.ppq);
+        console.log("   - duracion:", mia.duracion);
+        console.log("   - totalNotas:", mia.totalNotas);
+        console.log("   - totalTramos:", mia.totalTramos);
+        console.log("   - capas:", {
+            BASE: mia.cubo.capas.BASE.tramos.length,
+            ACOMPANAMIENTO: mia.cubo.capas.ACOMPANAMIENTO.tramos.length,
+            RUIDO: mia.cubo.capas.RUIDO.tramos.length
+        });
         return res.json(mia);
     }
     catch (err) {

@@ -9,12 +9,14 @@
 //    - NO interpreta
 //    - NO limpia
 //    - NO transforma MIDI
+//    - NO valida (la validación ocurre antes)
 // -------------------------------------------------------------
 import { writeFileSync } from "node:fs";
 export function empaquetarMiaSucia(mia, outputPath) {
     // Escritura opcional del archivo .mia
     if (outputPath) {
         try {
+            // ⭐ Escritura literal — NO transforma el objeto
             writeFileSync(outputPath, JSON.stringify(mia, null, 2), "utf8");
             console.log("📦 MIA SUCIA escrita en", outputPath);
         }
@@ -22,6 +24,6 @@ export function empaquetarMiaSucia(mia, outputPath) {
             console.error("❌ Error al escribir archivo MIA SUCIA:", err);
         }
     }
-    // Devolver el objeto soberano sin modificar
+    // ⭐ Devolver el objeto soberano sin modificar
     return mia;
 }

@@ -1,22 +1,22 @@
 // ============================================================
 //  backend/src/dev/templates/mia.plantilla.ts
 //  Plantilla geográfica oficial para construir MIA SUCIA v1.0
-//  (Alineada al contrato SUPREMO)
+//  Constitución 2.1 — Alineada a PMSmiaTramo (pitch real)
 // ============================================================
 export const crearPlantillaMia = () => ({
     version: "1.0",
     capas: {
         BASE: {
             nombre: "BASE",
-            tramos: [], // tramos HA–JL de la capa BASE
+            tramos: [], // tramos PMSmiaTramo (pitch real + alturaTexto decorativo)
         },
-        ACMP: {
-            nombre: "ACMP",
-            tramos: [], // tramos HA–JL de acompañamiento
+        ACOMPANAMIENTO: {
+            nombre: "ACOMPANAMIENTO",
+            tramos: [], // tramos PMSmiaTramo
         },
-        TRSH: {
-            nombre: "TRSH",
-            tramos: [], // tramos HA–JL clasificados como ruido
+        RUIDO: {
+            nombre: "RUIDO",
+            tramos: [], // tramos PMSmiaTramo
         },
     }
 });

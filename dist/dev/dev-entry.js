@@ -1,7 +1,7 @@
 // backend/src/dev/dev-entry.ts
 // -------------------------------------------------------------
 //  PAÍS DEV — EXPORTADOR OFICIAL DE OFICINAS INTERNAS
-//  Archivo constitucional 1.4.1
+//  Archivo constitucional 1.4.1 (alineado a la arquitectura actual)
 // -------------------------------------------------------------
 //
 //  Este archivo:
@@ -12,6 +12,7 @@
 //  ✔ No interpreta música
 //  ✔ No transforma MIDI
 //  ✔ No altera pitch, duración, velocity o posición
+//  ✔ No expone módulos internos que rompen el pipeline
 //
 // -------------------------------------------------------------
 // -------------------------------------------------------------
@@ -19,9 +20,9 @@
 // -------------------------------------------------------------
 export { ingestMidi } from "./midi-ingestor.js";
 // -------------------------------------------------------------
-// Ministerio de Capas (clasificación superficial BASE/ACOMP/RUIDO)
+// Ministerio de Orquestación IA (pipeline completo)
 // -------------------------------------------------------------
-export { layerMapper } from "./layer-mapper.js";
+export { IAOrchestrator } from "../departamentoia/IAOrchestrator.js";
 // -------------------------------------------------------------
 // Ministerio de Identidad (constructor de MIA SUCIA v1.0)
 // -------------------------------------------------------------

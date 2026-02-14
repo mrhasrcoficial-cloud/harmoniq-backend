@@ -1,18 +1,21 @@
 // backend/src/dev/validar-mia-sucia.ts
 // -------------------------------------------------------------
-//  Validador MIA SUCIA — Constitución 1.4.1 (Alineado a SUPREMO)
+//  Validador MIA SUCIA — Constitución 2.2 (Alineado a SUPREMO)
 // -------------------------------------------------------------
 export function validarMiaSucia(obj) {
     if (!obj || typeof obj !== "object")
         return false;
+    // Versión constitucional
     if (obj.version !== "1.0")
         return false;
+    // Metadata física
     if (typeof obj.bpmDetectado !== "number")
         return false;
     if (typeof obj.ppq !== "number")
         return false;
     if (typeof obj.duracion !== "number")
         return false;
+    // Cubo geográfico
     const cubo = obj.cubo;
     if (!cubo || typeof cubo !== "object")
         return false;
@@ -21,7 +24,8 @@ export function validarMiaSucia(obj) {
     const capas = cubo.capas;
     if (!capas || typeof capas !== "object")
         return false;
-    const nombres = ["BASE", "ACMP", "TRSH"];
+    // Nombres constitucionales
+    const nombres = ["BASE", "ACOMPANAMIENTO", "RUIDO"];
     for (const nombre of nombres) {
         const capa = capas[nombre];
         if (!capa || typeof capa !== "object")
@@ -31,13 +35,22 @@ export function validarMiaSucia(obj) {
         if (!Array.isArray(capa.tramos))
             return false;
         for (const t of capa.tramos) {
-            if (typeof t.altura !== "string")
+            // ⭐ alturaTexto decorativa → NO obligatoria
+            if (t.alturaTexto !== undefined && typeof t.alturaTexto !== "string")
                 return false;
-            if (typeof t.inicio !== "number")
+            // ⭐ pitch MIDI real (0–127)
+            if (typeof t.pitch !== "number" || t.pitch < 0 || t.pitch > 127)
                 return false;
-            if (typeof t.fin !== "number")
+            // Inicio/fin numéricos y no negativos
+            if (typeof t.inicio !== "number" || t.inicio < 0)
                 return false;
-            if (typeof t.capa !== "string")
+            if (typeof t.fin !== "number" || t.fin < 0)
+                return false;
+            // ⭐ Inicio <= fin
+            if (t.fin < t.inicio)
+                return false;
+            // Capa constitucional
+            if (t.capa !== nombre)
                 return false;
         }
     }

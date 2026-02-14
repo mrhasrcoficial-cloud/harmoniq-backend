@@ -1,19 +1,9 @@
-// backend/src/contracts/mia-sucia.contract.ts
 // -------------------------------------------------------------
-//  CONTRATO MIA SUCIA — Versión 1.0 (Alineado a SUPREMO)
-// -------------------------------------------------------------
-//
-//  Este contrato define la estructura diplomática oficial
-//  que el Backend entrega a SRC y que SUPREMO consume.
-//
-//  ✔ NO hace cognición
-//  ✔ NO interpreta música
-//  ✔ NO transforma MIDI
-//  ✔ NO usa ARKLIM ni CRUZ
-//
+//  CONTRATO MIA SUCIA — Versión 1.0 (Alineado a SUPREMO 2.2)
+//  Fuente soberana para SRC → SUPREMO → CRUZ → ARKLIM
 // -------------------------------------------------------------
 // -------------------------------------------------------------
-//  ADAPTADOR: PMSmiaTramo → MidiNote (para SRC y SUPREMO)
+//  ADAPTADOR: PMSmiaTramo → MidiNote (solo para vistas geográficas)
 // -------------------------------------------------------------
 export function tramoToMidiNote(t) {
     return {
@@ -23,8 +13,7 @@ export function tramoToMidiNote(t) {
         duration: t.fin - t.inicio,
         velocity: 100,
         trackIndex: t.capa === "BASE" ? 0 :
-            t.capa === "ACMP" ? 1 :
-                2,
-        channel: 0
+            t.capa === "ACOMPANAMIENTO" ? 1 :
+                2
     };
 }

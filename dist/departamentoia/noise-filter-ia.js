@@ -1,24 +1,8 @@
 // backend/src/departamentoia/noise-filter-ia.ts
 // -------------------------------------------------------------
-// NoiseFilter-IA — Filtro superficiale costituzionale
-// -------------------------------------------------------------
-// Funzioni:
-//   - Rimuovere note fantasma
-//   - Rimuovere note troppo corte
-//   - Rimuovere note fuori range
-//   - Rimuovere duplicati
-//   - Applicare etichette ARKLIM superficiali
-//   - Usare un dizionario IA interno
-//
-// NON usa:
-//   - Chasky
-//   - LIMBoard
-//   - allowedNotes / forbiddenNotes
-//   - energia, tensione, intenzione
-//   - analisi cognitiva
-// -------------------------------------------------------------
-// -------------------------------------------------------------
-// Dizionario ARKLIM superficiale (consentito)
+//  NoiseFilter-IA — Etiquetador superficial constitucional
+//  Versión 2.2 (NO elimina, NO transforma, NO produce MiaSuciaNote)
+//  Alineado a SUPREMO: NO asigna roles soberanos
 // -------------------------------------------------------------
 const IA_DICTIONARY = {
     tags: {
@@ -26,37 +10,51 @@ const IA_DICTIONARY = {
         GHOST: "ARK-GHOST",
         LOW_VELOCITY: "ARK-LOWVEL",
         DUPLICATE: "ARK-DUP",
+        MICRO_DUP: "ARK-MICRODUP",
         OUT_OF_RANGE: "ARK-OOR",
+        INVASIVE: "ARK-INV",
         CLEAN: "ARK-CLEAN"
     }
 };
 export const DEFAULT_NOISE_FILTER_CONFIG = {
-    minDuration: 0.05,
-    minVelocity: 20,
-    minPitch: 20,
-    maxPitch: 115
+    minDuration: 0.03,
+    minVelocity: 12,
+    minPitch: 15,
+    maxPitch: 120
 };
-// -------------------------------------------------------------
-// Funzione principale
-// -------------------------------------------------------------
+// ⭐ Devuelve InternalMidiNote enriquecido, NO MiaSuciaNote, NO role
 export function noiseFilterIA(notes, config = DEFAULT_NOISE_FILTER_CONFIG) {
     const result = [];
     const seen = new Set();
     for (const n of notes) {
         const tags = [];
         let valid = true;
+        // 0) Notas fantasma
+        if (n.duration <= 0 || n.velocity <= 0) {
+            tags.push(IA_DICTIONARY.tags.GHOST);
+            valid = false;
+        }
+        // 1) Rango suave
         if (n.pitch < config.minPitch || n.pitch > config.maxPitch) {
             tags.push(IA_DICTIONARY.tags.OUT_OF_RANGE);
             valid = false;
         }
+        // 2) Duración mínima suave
         if (n.duration < config.minDuration) {
             tags.push(IA_DICTIONARY.tags.SHORT);
             valid = false;
         }
+        // 3) Velocidad mínima suave
         if (n.velocity < config.minVelocity) {
             tags.push(IA_DICTIONARY.tags.LOW_VELOCITY);
             valid = false;
         }
+        // 4) Notas invasivas
+        if (n.pitch > 100 && n.velocity < 20) {
+            tags.push(IA_DICTIONARY.tags.INVASIVE);
+            valid = false;
+        }
+        // 5) Duplicados exactos
         const key = `${n.pitch}-${n.startTime.toFixed(4)}`;
         if (seen.has(key)) {
             tags.push(IA_DICTIONARY.tags.DUPLICATE);
@@ -65,28 +63,24 @@ export function noiseFilterIA(notes, config = DEFAULT_NOISE_FILTER_CONFIG) {
         else {
             seen.add(key);
         }
+        // 6) Micro-duplicados
+        const microKey = `${n.pitch}-${(n.startTime * 1000).toFixed(0)}`;
+        if (seen.has(microKey)) {
+            tags.push(IA_DICTIONARY.tags.MICRO_DUP);
+            valid = false;
+        }
+        else {
+            seen.add(microKey);
+        }
+        // 7) Nota limpia
         if (valid) {
             tags.push(IA_DICTIONARY.tags.CLEAN);
         }
-        const role = valid ? inferRole(n) : "ruido";
         result.push({
             ...n,
-            role,
-            inScale: role !== "ruido",
             valid,
             tags
         });
     }
     return result;
-}
-// -------------------------------------------------------------
-// Inferenza superficiale del ruolo (non cognitiva)
-// -------------------------------------------------------------
-function inferRole(n) {
-    const pc = n.pitchClass;
-    if (pc === 0 || pc === 5 || pc === 7)
-        return "base";
-    if (n.pitch >= 40 && n.pitch <= 90)
-        return "acompanamiento";
-    return "ruido";
 }

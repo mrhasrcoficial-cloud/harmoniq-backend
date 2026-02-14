@@ -1,32 +1,50 @@
+// backend/src/index.ts
+// -------------------------------------------------------------
+//  ENTRADA OFICIAL BACKEND — Constitución 2.2
+// -------------------------------------------------------------
 import { ingestMidi } from "./dev/midi-ingestor.js";
-import { IAbrow_clasificarNotas, IAbrow_clasificarCapas } from "./departamentoia/IAbrow.js";
-import { construirMiaSucia } from "./dev/constructor-mia-sucia.js";
-import { validarMiaSucia } from "./aduana/aduana-mia-sucia.js";
-import { TransportadorA } from "./teletransportador-A.js";
+import { IAOrchestrator } from "./departamentoia/IAOrchestrator.js";
 import { adaptarCapasATramos } from "./backend-adaptadores-tramos/adaptador-tramos.js";
+import { construirMiaSucia } from "./dev/constructor-mia-sucia.js";
+import { validarMiaSucia as validarMiaConstitucional } from "./dev/validar-mia-sucia.js";
+import { generarAnalisisMusical } from "./dev/analisis-musical.js";
+// ⭐ Clasificador por tramos
+import { clasificarNotasPorCapa } from "./dev/clasificar-notas-por-capa.js";
 export async function procesarMIDI(midiBuffer) {
-    // 1. Normalizar buffer
     const buffer = midiBuffer instanceof Uint8Array ? midiBuffer : new Uint8Array(midiBuffer);
-    // 2. Ingesta física
+    // 1. Ingesta física → InternalMidiNote[]
     const { notes, bpm, ppq, duracion } = ingestMidi(buffer);
-    // 3. Clasificación superficial IA‑MIA
-    const notasClasificadas = IAbrow_clasificarNotas(notes);
-    // 4. Capas constitucionales (por notas)
-    const capas = IAbrow_clasificarCapas(notasClasificadas);
-    // 5. Construcción del cubo geográfico vacío
-    const cubo = construirMiaSucia(capas);
-    // 6. Adaptar capas → tramos HA–JL
-    const capasConTramos = adaptarCapasATramos(capas);
-    // 7. Inyectar tramos en el cubo
-    cubo.capas.BASE.tramos = capasConTramos.BASE.tramos;
-    cubo.capas.ACMP.tramos = capasConTramos.ACMP.tramos;
-    cubo.capas.TRSH.tramos = capasConTramos.TRSH.tramos;
-    // 8. Totales derivados
-    const totalNotas = notasClasificadas.length;
+    // 2. IA constitucional → MiaSuciaCapas (MiaSuciaNote[])
+    const ia = new IAOrchestrator();
+    const capasNotas = ia.run(notes);
+    // 3. Adaptar capas → tramos
+    const capasConTramos = adaptarCapasATramos(capasNotas);
+    // 4. Construir cubo soberano
+    const cubo = construirMiaSucia(capasConTramos);
+    // 5. Totales
+    const totalNotas = capasNotas.BASE.length +
+        capasNotas.ACOMPANAMIENTO.length +
+        capasNotas.RUIDO.length;
     const totalTramos = cubo.capas.BASE.tramos.length +
-        cubo.capas.ACMP.tramos.length +
-        cubo.capas.TRSH.tramos.length;
-    // 9. Ensamblar contrato MIA SUCIA v1.0 (versión SUPREMO)
+        cubo.capas.ACOMPANAMIENTO.tramos.length +
+        cubo.capas.RUIDO.tramos.length;
+    // ⭐ 6.1 Mapear notas YA CLASIFICADAS por IA → ContractMidiNote (limpio)
+    const notasOriginales = [
+        ...capasNotas.BASE,
+        ...capasNotas.ACOMPANAMIENTO,
+        ...capasNotas.RUIDO
+    ].map(n => ({
+        pitch: n.pitch,
+        startTime: n.startTime,
+        duration: n.duration,
+        velocity: n.velocity,
+        trackIndex: n.trackIndex,
+        channel: n.channel,
+        role: n.role // ⭐ AHORA SÍ: role ∈ {BASE, ACOMPANAMIENTO, RUIDO}
+    }));
+    // ⭐ 6.2 Clasificar notas reales por capa usando TRAMOS
+    const notasPorCapa = clasificarNotasPorCapa(notasOriginales, cubo);
+    // 7. Ensamblar contrato soberano
     const miaSucia = {
         version: "1.0",
         cubo,
@@ -34,13 +52,17 @@ export async function procesarMIDI(midiBuffer) {
         ppq,
         duracion,
         totalNotas,
-        totalTramos
+        totalTramos,
+        notasOriginales,
+        notasPorCapa
     };
-    // 10. Validación constitucional (lanza si inválido)
-    const sello = validarMiaSucia(miaSucia);
-    // sello puede usarse para logging o auditoría
-    // console.debug("Aduana sello:", sello);
-    // 11. Ministerio Exterior
-    const transportador = new TransportadorA();
-    return transportador.enviar(miaSucia);
+    const analisisMusical = generarAnalisisMusical(miaSucia);
+    const esValida = validarMiaConstitucional(miaSucia);
+    if (!esValida) {
+        throw new Error("MIA SUCIA inválida según el validador constitucional.");
+    }
+    return {
+        ...miaSucia,
+        analisisMusical
+    };
 }

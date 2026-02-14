@@ -1,23 +1,41 @@
 // backend/src/departamentoia/IAOrchestrator.ts
 // -------------------------------------------------------------
-//  IAOrchestrator — Orquestador superficial IA‑MIA
-//  Constitución Backend 1.4.1
+//  IAOrchestrator — Orquestador IA‑MIA
+//  Constitución Backend 2.2 (pipeline interno coherente)
 // -------------------------------------------------------------
 //  ✔ NO hace cognición
 //  ✔ NO interpreta música
 //  ✔ NO transforma MIDI
 //  ✔ NO usa ARKLIM ni CRUZ
-//  ✔ Solo filtra ruido superficial y clasifica roles
+//  ✔ Orquesta el pipeline superficial completo
+// -------------------------------------------------------------
+//  Produce capas soberanas internas:
+//      BASE / ACOMPANAMIENTO / RUIDO
 // -------------------------------------------------------------
 import { noiseFilterIA } from "./noise-filter-ia.js";
-import { IAbrow_clasificarNotas, IAbrow_clasificarCapas } from "./IAbrow.js";
+import { evaluarNotas } from "./IAEvaluator.js";
+import { IAbrow_clasificarNotas } from "./IAbrow.js";
+import { layerMapper } from "../dev/layer-mapper.js";
 export class IAOrchestrator {
     run(notes) {
-        // 1. Filtro superficial de ruido
-        const filtered = noiseFilterIA(notes);
-        // 2. Clasificación superficial IA‑MIA
-        const classified = IAbrow_clasificarNotas(filtered);
-        // 3. Capas superficiales (BASE / ACOMP / RUIDO)
-        return IAbrow_clasificarCapas(classified);
+        // ---------------------------------------------------------
+        // 1. Filtrado superficial (NO elimina notas válidas)
+        // ---------------------------------------------------------
+        const filtradas = noiseFilterIA(notes);
+        // ---------------------------------------------------------
+        // 2. Evaluación superficial (tipo, estabilidad, importancia)
+        // ---------------------------------------------------------
+        const evaluadas = evaluarNotas(filtradas);
+        // ---------------------------------------------------------
+        // 3. Clasificación superficial IA‑MIA
+        //    (roles soberanos: BASE / ACOMPANAMIENTO / RUIDO)
+        // ---------------------------------------------------------
+        const clasificadas = IAbrow_clasificarNotas(evaluadas);
+        // ---------------------------------------------------------
+        // 4. Calibración fina de capas
+        //    (ruido contextual, micro-notas, etc.)
+        // ---------------------------------------------------------
+        const capas = layerMapper(clasificadas);
+        return capas;
     }
 }
