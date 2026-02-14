@@ -28,16 +28,28 @@ import { layerMapper } from "../dev/layer-mapper.js";
 
 export class IAOrchestrator {
   run(notes: BackendMidiNote[]): MiaSuciaCapas {
+    // ---------------------------------------------------------
     // 1. Filtrado superficial (NO elimina notas válidas)
+    // ---------------------------------------------------------
     const filtradas: BackendMidiNote[] = noiseFilterIA(notes);
 
+    // ---------------------------------------------------------
     // 2. Evaluación superficial (tipo, estabilidad, importancia)
+    // ---------------------------------------------------------
     const evaluadas = evaluarNotas(filtradas);
 
-    // 3. Clasificación superficial IA‑MIA (rol base/acompa/ruido)
+    // ---------------------------------------------------------
+    // 3. Clasificación superficial IA‑MIA
+    //    (roles soberanos: BASE / ACOMPANAMIENTO / RUIDO)
+    // ---------------------------------------------------------
     const clasificadas: MiaSuciaNote[] = IAbrow_clasificarNotas(evaluadas);
 
-    // 4. Calibración fina de capas (ruido contextual, micro-notas, etc.)
+    // ---------------------------------------------------------
+    // 4. Calibración fina de capas
+    //    (ruido contextual, micro-notas, etc.)
+    //    ⭐ Debe respetar los nombres soberanos:
+    //       "BASE" | "ACOMPANAMIENTO" | "RUIDO"
+    // ---------------------------------------------------------
     const capas: MiaSuciaCapas = layerMapper(clasificadas);
 
     return capas;

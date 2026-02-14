@@ -2,6 +2,7 @@
 // -------------------------------------------------------------
 //  asignarRoles — Adaptador inicial (NO clasifica)
 //  Constitución 2.1 (NO produce MiaSuciaNote)
+//  Alineado a SUPREMO: roles soberanos BASE / ACOMPANAMIENTO / RUIDO
 // -------------------------------------------------------------
 
 import type {
@@ -23,8 +24,8 @@ export function asignarRoles(
     return {
       ...n,               // ⭐ preserva channel, pitch, velocity, etc.
 
-      // Rol superficial placeholder (el real lo asigna IAbrow)
-      role: "acompanamiento",
+      // Rol superficial placeholder (el real lo asigna IAbrow + layerMapper)
+      role: "ACOMPANAMIENTO",
 
       // Se recalibrará después por noiseFilter + IAEvaluator + IAbrow
       inScale: true,

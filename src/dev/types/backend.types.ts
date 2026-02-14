@@ -21,12 +21,13 @@ export interface BackendMidiNote {
 }
 
 // ─────────────────────────────────────────────
-// 2. Rol superficial IA‑MIA
+// 2. Rol superficial IA‑MIA (SOBERANO)
 // ─────────────────────────────────────────────
+// ⭐ Alineado a SUPREMO: nombres constitucionales
 export type MiaNotaRol =
-  | "base"
-  | "acompanamiento"
-  | "ruido";
+  | "BASE"
+  | "ACOMPANAMIENTO"
+  | "RUIDO";
 
 // ─────────────────────────────────────────────
 // 3. Nota MIA SUCIA (clasificada superficialmente)

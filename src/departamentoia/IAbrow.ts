@@ -2,6 +2,7 @@
 // -------------------------------------------------------------
 //  IAbrow — IA‑MIA (Clasificación superficial con evaluación)
 //  Constitución 2.1 (corrige channel + coherencia MiaSuciaNote)
+//  Alineado a SUPREMO: BASE / ACOMPANAMIENTO / RUIDO (nombres soberanos)
 // -------------------------------------------------------------
 
 import type {
@@ -25,24 +26,24 @@ export class IAbrow {
     const imp = n.importancia;
 
     // 0) Ruido duro
-    if (tipo === "fantasma" || tipo === "micro") return "ruido";
-    if (tipo === "aislada" && imp < 0.25) return "ruido";
+    if (tipo === "fantasma" || tipo === "micro") return "RUIDO";
+    if (tipo === "aislada" && imp < 0.25) return "RUIDO";
 
     // 1) BASE superficial
-    if (tipo === "estructural" && est >= 0.8 && imp >= 0.4) return "base";
-    if (tipo === "guia" && est >= 0.7 && imp >= 0.5) return "base";
+    if (tipo === "estructural" && est >= 0.8 && imp >= 0.4) return "BASE";
+    if (tipo === "guia" && est >= 0.7 && imp >= 0.5) return "BASE";
 
     // 2) ACOMPANAMIENTO
-    if (tipo === "paso") return "acompanamiento";
-    if (tipo === "relleno") return "acompanamiento";
-    if (tipo === "tension") return "acompanamiento";
-    if (tipo === "resolucion") return "acompanamiento";
+    if (tipo === "paso") return "ACOMPANAMIENTO";
+    if (tipo === "relleno") return "ACOMPANAMIENTO";
+    if (tipo === "tension") return "ACOMPANAMIENTO";
+    if (tipo === "resolucion") return "ACOMPANAMIENTO";
 
     // 3) Notas débiles pero válidas → acompañamiento suave
-    if (imp >= 0.2) return "acompanamiento";
+    if (imp >= 0.2) return "ACOMPANAMIENTO";
 
     // 4) Todo lo demás → ruido superficial
-    return "ruido";
+    return "RUIDO";
   }
 
   // Convertir BackendMidiNote → MiaSuciaNote usando evaluación
@@ -55,8 +56,8 @@ export class IAbrow {
       return {
         ...n,                 // ⭐ incluye channel, pitch, velocity, etc.
         role,
-        inScale: role !== "ruido",
-        valid: role !== "ruido",
+        inScale: role !== "RUIDO",
+        valid: role !== "RUIDO",
         tags: [n.tipo]        // ⭐ cada nota lleva su tipo superficial
       };
     });
@@ -84,8 +85,8 @@ export function IAbrow_clasificarCapas(
   notes: MiaSuciaNote[]
 ): MiaSuciaCapas {
   return {
-    BASE: notes.filter(n => n.role === "base"),
-    ACOMPANAMIENTO: notes.filter(n => n.role === "acompanamiento"),
-    RUIDO: notes.filter(n => n.role === "ruido")
+    BASE: notes.filter(n => n.role === "BASE"),
+    ACOMPANAMIENTO: notes.filter(n => n.role === "ACOMPANAMIENTO"),
+    RUIDO: notes.filter(n => n.role === "RUIDO")
   };
 }

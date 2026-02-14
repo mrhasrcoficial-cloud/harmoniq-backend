@@ -2,6 +2,7 @@
 // -------------------------------------------------------------
 //  NoiseFilter-IA — Etiquetador superficial constitucional
 //  Versión 2.1 (NO elimina, NO transforma, NO produce MiaSuciaNote)
+//  Alineado a SUPREMO: roles soberanos BASE / ACOMPANAMIENTO / RUIDO
 // -------------------------------------------------------------
 
 import type {
@@ -36,7 +37,7 @@ export const DEFAULT_NOISE_FILTER_CONFIG: NoiseFilterConfig = {
   maxPitch: 120
 };
 
-// ⭐ Ahora devuelve BackendMidiNote enriquecido, NO MiaSuciaNote
+// ⭐ Devuelve BackendMidiNote enriquecido, NO MiaSuciaNote
 export function noiseFilterIA(
   notes: BackendMidiNote[],
   config: NoiseFilterConfig = DEFAULT_NOISE_FILTER_CONFIG
@@ -106,14 +107,13 @@ export function noiseFilterIA(
       tags.push(IA_DICTIONARY.tags.CLEAN);
     }
 
-    // Rol superficial (NO definitivo)
-    const role: MiaNotaRol = valid ? inferRole(n) : "ruido";
+    // ⭐ Rol superficial soberano (NO definitivo)
+    const role: MiaNotaRol = valid ? inferRole(n) : "RUIDO";
 
-    // ⭐ Devolvemos BackendMidiNote enriquecido (incluye channel)
     result.push({
       ...n,
       role,
-      inScale: role !== "ruido",
+      inScale: role !== "RUIDO",
       valid,
       tags
     });
@@ -122,10 +122,18 @@ export function noiseFilterIA(
   return result;
 }
 
+// -------------------------------------------------------------
+//  INFERENCIA SUPERFICIAL DE ROL (SOBERANA)
+// -------------------------------------------------------------
 function inferRole(n: BackendMidiNote): MiaNotaRol {
   const pc = n.pitchClass;
 
-  if (pc === 0 || pc === 5 || pc === 7) return "base";
-  if (n.pitch >= 40 && n.pitch <= 90) return "acompanamiento";
-  return "ruido";
+  // BASE (grados fuertes)
+  if (pc === 0 || pc === 5 || pc === 7) return "BASE";
+
+  // ACOMPANAMIENTO (rango melódico típico)
+  if (n.pitch >= 40 && n.pitch <= 90) return "ACOMPANAMIENTO";
+
+  // RUIDO (todo lo demás)
+  return "RUIDO";
 }

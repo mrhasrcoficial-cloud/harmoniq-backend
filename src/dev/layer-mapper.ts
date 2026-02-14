@@ -1,6 +1,7 @@
 // -------------------------------------------------------------
-//  LayerMapper — Versión Constitucional 3.0
-//  Reconstrucción soberana de BASE / ACOMP / RUIDO
+//  LayerMapper — Versión Constitucional 3.1
+//  Reconstrucción soberana de BASE / ACOMPANAMIENTO / RUIDO
+//  Alineado a SUPREMO 2.2.0 y MiaSucia 1.0
 // -------------------------------------------------------------
 
 import type { MiaSuciaNote, MiaSuciaCapas } from "../dev/types/backend.types.js";
@@ -53,7 +54,7 @@ function esRuido(n: MiaSuciaNote, todas: MiaSuciaNote[]): boolean {
   const vecinos = todas.filter(
     m =>
       m !== n &&
-      Math.abs(m.startTime - n.startTime) < 1.0 &&   // ⭐ ventana ampliada
+      Math.abs(m.startTime - n.startTime) < 1.0 &&
       Math.abs(m.pitch - n.pitch) < 4
   );
 
@@ -71,25 +72,29 @@ export function layerMapper(notes: MiaSuciaNote[]): MiaSuciaCapas {
   const RUIDO: MiaSuciaNote[] = [];
 
   for (const n of notes) {
-    // 1) Ruido físico o contextual
+    // 1) RUIDO físico o contextual
     if (esRuido(n, notes)) {
+      n.role = "RUIDO";
       RUIDO.push(n);
       continue;
     }
 
-    // 2) Notas fundamentales
+    // 2) BASE — notas fundamentales
     if (esNotaBase(n, notes)) {
+      n.role = "BASE";
       BASE.push(n);
       continue;
     }
 
-    // 3) Notas de acompañamiento
+    // 3) ACOMPANAMIENTO — rango medio
     if (esAcompanamiento(n, notes)) {
+      n.role = "ACOMPANAMIENTO";
       ACOMPANAMIENTO.push(n);
       continue;
     }
 
     // 4) Fallback seguro → acompañamiento
+    n.role = "ACOMPANAMIENTO";
     ACOMPANAMIENTO.push(n);
   }
 

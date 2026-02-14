@@ -2,6 +2,20 @@
 // -------------------------------------------------------------
 //  ADUANA MIA SUCIA — Constitución 2.1 (Alineado a SUPREMO)
 // -------------------------------------------------------------
+//  ⚠️ IMPORTANTE — CAMINO B:
+//  Esta NO es la validación constitucional oficial del contrato.
+//  Esa vive en: dev/validar-mia-sucia.ts
+//
+//  La Aduana es un órgano de CONTROL PROFUNDO:
+//    - Revisa más estrictamente
+//    - Lanza errores si algo está mal
+//    - No define identidad del MIA SUCIA
+//    - No reemplaza al validador oficial
+//    - No participa en el pipeline soberano
+//
+//  Su función es AUDITAR, no IDENTIFICAR.
+//  SRC y SUPREMO siguen usando el validador oficial.
+// -------------------------------------------------------------
 
 import type { MiaSucia } from "../contracts/mia-sucia.contract.js";
 import type { MiaCubo, MiaCapa, PMSmiaTramo } from "../dev/types/mia.types.js";
@@ -15,6 +29,8 @@ export interface SelloAduanaBackend {
 }
 
 // Validación principal (contrato SUPREMO)
+// ⚠️ Esta función es ADUANA, no validador constitucional.
+//    Lanza errores si algo no cumple los estándares internos.
 export function validarMiaSucia(mia: MiaSucia): SelloAduanaBackend {
   if (mia.version !== "1.0") {
     throw new Error("Aduana Backend: Versión MIA SUCIA inválida.");
