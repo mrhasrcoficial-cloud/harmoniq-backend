@@ -48,7 +48,7 @@ export async function procesarMIDI(
     cubo.capas.ACOMPANAMIENTO.tramos.length +
     cubo.capas.RUIDO.tramos.length;
 
-  // ⭐ 6.1 Mapear notas YA CLASIFICADAS (MiaSuciaNote) → ContractMidiNote
+  // ⭐ 6.1 Mapear notas YA CLASIFICADAS por IA → ContractMidiNote (limpio)
   const notasOriginales: ContractMidiNote[] = [
     ...capasNotas.BASE,
     ...capasNotas.ACOMPANAMIENTO,
@@ -60,7 +60,7 @@ export async function procesarMIDI(
     velocity: n.velocity,
     trackIndex: n.trackIndex,
     channel: n.channel,
-    role: n.role // ✔ ahora sí existe
+    role: n.role // ⭐ AHORA SÍ: role ∈ {BASE, ACOMPANAMIENTO, RUIDO}
   }));
 
   // ⭐ 6.2 Clasificar notas reales por capa usando TRAMOS
